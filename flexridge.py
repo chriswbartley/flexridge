@@ -1,3 +1,35 @@
+"""Flexible Ridge Regression (sklearn compatible).
+
+This module implements a Ridge regression model in the sklearn pattern.
+It is designed to be a plug in replacement to the sklearn Ridge model,
+but with the following additional features:
+    * Unimodal coefficients: groups of coefficients can be constrained to be
+        unimodal.
+    * Separately monotone coefficients: partial monotonicity can be imposed,
+        with some coefficients can be constrained to be non-increasing or non-decreasing
+        while others are not constrained. The sklearn implementation only allows
+        all coefficients to be 'positive' (or no constraints).
+
+Author:
+    Chris Bartley, PhD chris@bartleys.net, 2023
+
+The unimodal constraints are achieved by a novel approach that uses a quadratic
+fit to the coefficients and then imposes a constraint on the curvature of the
+quadratic. This prevents 'dips' in the coefficients, which are required for
+multimodality.
+
+Attributes:
+    RidgeRegression: Main flexible ridge model
+    QuadraticFit: Used to assess for coefficient unimodality.
+
+Todo:
+    * None at present.
+
+.. _Google Python Style Guide:
+   http://google.github.io/styleguide/pyguide.html
+
+"""
+
 from scipy.optimize import minimize
 from scipy.optimize import NonlinearConstraint, LinearConstraint
 import numpy as np

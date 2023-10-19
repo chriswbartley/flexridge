@@ -3,8 +3,6 @@ import scipy.stats
 import time
 import numpy as np
 from flexridge import RidgeRegression, get_dip_values
-
-
 import matplotlib.pyplot as plt
 
 # trial solving constrained coefficients
