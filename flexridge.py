@@ -24,6 +24,7 @@ Attributes:
 
 Todo:
     * Replace r2_score with local definition to remove sklearn dependency.
+    # Expand get_params() to all parameters
 
 .. _Google Python Style Guide:
    http://google.github.io/styleguide/pyguide.html
