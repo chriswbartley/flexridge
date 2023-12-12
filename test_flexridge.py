@@ -172,11 +172,11 @@ def test_unimodal_solutions():
         assert(np.allclose(correct_unimodal_coefs[i_coefs], reg_custom_unimodal.coef_, atol=1e-4))
 
 def test_unimodal_solutions_cv():
-    correct_unimodal_coefs = [np.array([-0.14147935,  0.26010327 , 0.25906768 , 0.77505857, -0.20631248, -0.24961542]),
-                np.array([-0.04300232, -0.04185857 , 0.43812805 , 0.44275741 , 0.00874056, -0.10811933]),
-                np.array([-0.04313   , -0.04198285 , 0.44543502 , 0.45179405 , 0.22834705, -0.11080131]),
-                np.array([-0.08387538 ,-0.08164451 , 0.23608995 , 0.23814559 , 0.23523305,  0.29982537]),
-                np.array([-0.12068009, -0.1174703 ,  0.43702179 , 0.4377816,   0.01191144,-0.11275637]),
+    correct_unimodal_coefs = [np.array([-0.1421960817113482, 0.2561258502251652, 0.25943243811159217, 0.7780515693858642, -0.2068916814228983, -0.2508203665948198]),
+                np.array([-0.04242110599490983, -0.04079693464893706, 0.4362692790863383, 0.440955072916709, 0.008708548148201474, -0.10743522728147634]),
+                np.array([-0.042276829605507785, -0.04065818215090905, 0.4412826689668035, 0.44779569927520385, 0.22573836459812519, -0.10945812207190919]),
+                np.array([-0.08382044382412333, -0.08061122143669841, 0.2371304077612388, 0.23948567851248653, 0.2341194189524406, 0.30027024025942256]),
+                np.array([-0.12040128778524806, -0.11579149940181095, 0.43510943780126127, 0.4360359883284111, 0.011846054118711789, -0.1119879603668821]),
                 # np.array([0.61969394 , 0.33860653 , 0.33860642 , 0.33860633 , 0.27177542 , 0.2717753 ]),
                 # np.array([-0.05994643,  0.1801058 ,  0.70110524,  0.26040426 , 0.25248045,  0.25248045]),
                 # np.array([0.73636598 , 0.73636598 , 0.90922988 , 0.99976239 , 0.49803944 , 0.49803944]),
@@ -265,12 +265,11 @@ def test_unimodal_solutions_cv():
         plt.grid()
         plt.ylim([0, 1])
         plt.show()
-        assert (np.allclose(correct_unimodal_coefs[i_coefs], reg_custom_unimodal.coef_, atol=1e-2)) # note: eased up tolerance because couldn't be bothered
-
+        assert (np.allclose(correct_unimodal_coefs[i_coefs], reg_custom_unimodal.coef_, atol=1e-4))
 
 if __name__ == '__main__':
     test_unimodal_solutions()
     test_unimodal_solutions_cv()
-    # test_standard_fit_matches_sklearn()
-    # test_monotone_fit_matches_sklearn()
+    test_standard_fit_matches_sklearn()
+    test_monotone_fit_matches_sklearn()
 
