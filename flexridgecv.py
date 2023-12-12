@@ -26,7 +26,8 @@ class RidgeRegressionCV(object):
                  fit_intercept=True,
                  unimodal = False, # either: True/False, OR a list of lists of indices of features to be made unimodal
                  alpha_optimisation = 'sklearn_ridge_cv', # only option at present
-                 normalize = False, # normalise X columns: divide by L2 norm (same as sklearn Ridge)
+                 # normalize = False, # normalise X columns: divide by L2 norm (same as sklearn Ridge)
+                 standardize = False, # standardise X columns: subtract mean and divide by std
                  cv = None, # for sklearn optimisation, defaults to optimised LOO
                  **kwargs):
         self.base_regressor_params_dict = {'monotone_constraints': None if monotone_constraints is None else np.asarray(monotone_constraints),
@@ -35,16 +36,20 @@ class RidgeRegressionCV(object):
                                            'unimodal':unimodal}
         self.alphas = alphas
         self.alpha_optimisation = alpha_optimisation
-        self.normalize = normalize
-        self.normalizer = NormalizeColumns() if self.normalize else None
+        # self.normalize = normalize
+        # self.normalizer = NormalizeColumns() if self.normalize else None
+
+        self.standardize = standardize
+        self.standardizer = StandardScaler() if self.standardize else None
+
         self.cv = cv
         # self.regressor = linear_model.RidgeCV(**kwargs)
         # self.monotone_constraints = None if monotone_constraints is None else np.asarray(monotone_constraints)
 
     def fit(self, X, y):
         # standard is requested. there may be a teensy bit of leakage, I'm ok with that
-        if self.normalize:
-            X_t = self.normalizer.fit_transform(X)
+        if self.standardize:
+            X_t = self.standardizer.fit_transform(X)
         else:
             X_t = X.copy()
 
@@ -53,7 +58,7 @@ class RidgeRegressionCV(object):
             regcv = RidgeCV(alphas=self.alphas, fit_intercept=self.base_regressor_params_dict['fit_intercept'], cv = self.cv)
             regcv.fit(X_t, y)
             self.alpha_ = regcv.alpha_
-            print('Optimal alpha: {} ({}/{})'.format(self.alpha_, list(self.alphas).index(self.alpha_), len(self.alphas)))
+            print('Optimal alpha: {} ({}/{})'.format(self.alpha_, list(self.alphas).index(self.alpha_)+1, len(self.alphas)))
         else:
             raise NotImplementedError('alpha_optimisation = {} not implemented'.format(self.alpha_optimisation))
 
@@ -64,15 +69,15 @@ class RidgeRegressionCV(object):
         self.regressor.fit(X_t, y)
         self.intercept_ = self.regressor.intercept_
         self.coef_ = self.regressor.coef_
-        if self.normalize:
-            self.coef_ = self.coef_ / self.normalizer.scale_
-            self.intercept_ = self.intercept_ #- np.sum(self.coef_ * self.normalizer.mean_)
+        if self.standardize:
+            self.coef_ = self.coef_ / self.standardizer.scale_
+            self.intercept_ = self.intercept_ - np.sum(self.coef_ * self.standardizer.mean_)
         return
 
 
     def predict(self, X):
-        if self.normalize:
-            X_t = self.normalizer.transform(X)
+        if self.standardize:
+            X_t = self.standardizer.transform(X)
         else:
             X_t = X
         res = self.regressor.predict(X_t)

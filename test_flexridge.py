@@ -172,11 +172,11 @@ def test_unimodal_solutions():
         assert(np.allclose(correct_unimodal_coefs[i_coefs], reg_custom_unimodal.coef_, atol=1e-4))
 
 def test_unimodal_solutions_cv():
-    correct_unimodal_coefs = [np.array([-0.1421960817113482, 0.2561258502251652, 0.25943243811159217, 0.7780515693858642, -0.2068916814228983, -0.2508203665948198]),
-                np.array([-0.04242110599490983, -0.04079693464893706, 0.4362692790863383, 0.440955072916709, 0.008708548148201474, -0.10743522728147634]),
-                np.array([-0.042276829605507785, -0.04065818215090905, 0.4412826689668035, 0.44779569927520385, 0.22573836459812519, -0.10945812207190919]),
-                np.array([-0.08382044382412333, -0.08061122143669841, 0.2371304077612388, 0.23948567851248653, 0.2341194189524406, 0.30027024025942256]),
-                np.array([-0.12040128778524806, -0.11579149940181095, 0.43510943780126127, 0.4360359883284111, 0.011846054118711789, -0.1119879603668821]),
+    correct_unimodal_coefs = [np.array([-0.142387708753341, 0.2615420386817966, 0.2605007730895933, 0.7795265976600682, -0.2078334709801548, -0.25099195746433706]),
+                np.array([-0.04303739478739552, -0.04189271089027935, 0.43813479416915463, 0.4427669194034504, 0.008719822252324136, -0.10807927905352294]),
+                np.array([-0.04291015288891588, -0.04176885331760857, 0.443005722105883, 0.449384159266662, 0.22714114374833028, -0.11011343719283016]),
+                np.array([-0.08449607509883231, -0.08224869708331413, 0.23807631281248817, 0.2401492442899376, 0.23721219328910367, 0.30241769676735847]),
+                np.array([-0.12068518585814729, -0.11747527068516425, 0.4370224576287539, 0.43778405667890163, 0.0118928956665328, -0.11275077955602807]),
                 # np.array([0.61969394 , 0.33860653 , 0.33860642 , 0.33860633 , 0.27177542 , 0.2717753 ]),
                 # np.array([-0.05994643,  0.1801058 ,  0.70110524,  0.26040426 , 0.25248045,  0.25248045]),
                 # np.array([0.73636598 , 0.73636598 , 0.90922988 , 0.99976239 , 0.49803944 , 0.49803944]),
@@ -202,7 +202,7 @@ def test_unimodal_solutions_cv():
     ]
     # unimodal_idx_groups = True
     fit_intercept = True
-    alphas = np.logspace(-3,1,100)#0.01
+    alphas = np.logspace(-1,3,100)#0.01
 
     for i_coefs, coefs in enumerate(coefs_all):
         np.random.seed(rand_seed)  # +i_coefs)
@@ -222,7 +222,9 @@ def test_unimodal_solutions_cv():
         reg_custom = RidgeRegressionCV(alphas=alphas,
                                      fit_intercept=fit_intercept,
                                      unimodal=False,
-                                       normalize=True,
+                                       standardize=True,
+                                       # normalize=True,
+
                                        # positive=True
                                        )
         reg_custom.fit(X, y)
@@ -238,7 +240,8 @@ def test_unimodal_solutions_cv():
         reg_custom_unimodal = RidgeRegressionCV(alphas=alphas,
                                               fit_intercept=fit_intercept,
                                               unimodal=True,
-                                                normalize=True,
+                                                standardize=True,
+                                                # normalize=True,
                                        # positive=True
                                                 )
         reg_custom_unimodal.fit(X, y)
