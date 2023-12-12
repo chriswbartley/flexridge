@@ -3,6 +3,7 @@ import scipy.stats
 import time
 import numpy as np
 from flexridge import RidgeRegression, get_dip_values
+from flexridgecv import RidgeRegressionCV
 import matplotlib.pyplot as plt
 
 # trial solving constrained coefficients
@@ -116,7 +117,7 @@ def test_unimodal_solutions():
     ]
     # unimodal_idx_groups = True
     fit_intercept = True
-    alpha = 0.01
+    alpha =  0.01
     for i_coefs, coefs in enumerate(coefs_all):
         np.random.seed(rand_seed)  # +i_coefs)
         print('true coef:', coefs)
@@ -170,9 +171,100 @@ def test_unimodal_solutions():
         # print('XX',correct_unimodal_coefs[i_coefs], reg_custom_unimodal.coef_)
         assert(np.allclose(correct_unimodal_coefs[i_coefs], reg_custom_unimodal.coef_, atol=1e-4))
 
+def test_unimodal_solutions_cv():
+    correct_unimodal_coefs = [np.array([-0.14147935,  0.26010327 , 0.25906768 , 0.77505857, -0.20631248, -0.24961542]),
+                np.array([-0.04300232, -0.04185857 , 0.43812805 , 0.44275741 , 0.00874056, -0.10811933]),
+                np.array([-0.04313   , -0.04198285 , 0.44543502 , 0.45179405 , 0.22834705, -0.11080131]),
+                np.array([-0.08387538 ,-0.08164451 , 0.23608995 , 0.23814559 , 0.23523305,  0.29982537]),
+                np.array([-0.12068009, -0.1174703 ,  0.43702179 , 0.4377816,   0.01191144,-0.11275637]),
+                # np.array([0.61969394 , 0.33860653 , 0.33860642 , 0.33860633 , 0.27177542 , 0.2717753 ]),
+                # np.array([-0.05994643,  0.1801058 ,  0.70110524,  0.26040426 , 0.25248045,  0.25248045]),
+                # np.array([0.73636598 , 0.73636598 , 0.90922988 , 0.99976239 , 0.49803944 , 0.49803944]),
+                # np.array([0.42534316 , 0.60668949 , 0.78069408 , 0.33134332 , 0.33134333 , 0.15102768]),
+                ]
+
+    # trial solving constrained coefficients
+    rand_seed = 121
+    n = 900
+    n_feats = 6
+    np.random.seed(rand_seed)
+    X = np.random.rand(n * n_feats).reshape(n, n_feats)
+    coefs_all = [
+        np.array([0., 0.75, 0., .75, 0., 0]),
+        np.array([0.2, 0.05, 0.5, .4, 0.25, 0.1]),
+        np.array([0.2, 0.05, 0.5, .4, 0.5, 0.1]),
+        np.array([0.1, 0.05, 0.3, .2, 0.5, 0.6]),
+        np.array([0.02, 0.05, 0.5, .4, 0.25, 0.1]),  # prob
+        # np.random.rand(6),
+        # np.random.rand(6),
+        # np.random.rand(6),
+        # np.random.rand(6),
+    ]
+    # unimodal_idx_groups = True
+    fit_intercept = True
+    alphas = np.logspace(-3,3,100)#0.01
+
+    for i_coefs, coefs in enumerate(coefs_all):
+        np.random.seed(rand_seed)  # +i_coefs)
+        print('true coef:', coefs)
+
+        y = np.dot(X, coefs
+                   ).ravel() + scipy.stats.norm(0, 1).rvs(n)
+
+        # custom Ridge
+        start = time.time()
+        # for i in range(100):
+        reg_custom = RidgeRegressionCV(alphas=alphas,
+                                     fit_intercept=fit_intercept,
+                                     unimodal=False,
+                                       standardize=True,
+                                       # positive=True
+                                       )
+        reg_custom.fit(X, y)
+        time_s = np.round(time.time() - start, 3)
+        print('custom ridge:', 0.5 * np.sum((y - reg_custom.predict(X)) ** 2), np.max(get_dip_values(reg_custom.coef_)),
+              time_s,
+              reg_custom.intercept_, reg_custom.coef_,reg_custom.alpha_
+              )
+        fig, ax = plt.subplots()
+        start = time.time()
+        # for i in range(100):
+        reg_custom_unimodal = RidgeRegressionCV(alphas=alphas,
+                                              fit_intercept=fit_intercept,
+                                              unimodal=True,
+                                                standardize=True,
+                                       # positive=True
+                                                )
+        reg_custom_unimodal.fit(X, y)
+        time_s = np.round(time.time() - start, 3)
+        print('custom ridge unimodal:', 0.5 * np.sum((y - reg_custom_unimodal.predict(X)) ** 2),
+              np.max(get_dip_values(reg_custom_unimodal.coef_)),
+              time_s,
+              reg_custom_unimodal.intercept_, reg_custom_unimodal.coef_,
+              )
+        #
+        X_coef_locn = np.arange(len(coefs))
+
+        plt.plot(X_coef_locn, coefs, marker='o', label='coefs true', color='k', linestyle='--')
+        # plt.plot(X_coef_locn,coefs_est_ls, color='r',label='coefs ls', marker='x')
+        plt.plot(X_coef_locn, reg_custom.coef_, label='coefs ridge', color='red', marker='x')
+        plt.plot(X_coef_locn, reg_custom_unimodal.coef_, label='coefs ridge unimodal',
+                 color='blue', marker='o', linestyle='--')
+        print('unimodal coefs:', reg_custom_unimodal.coef_)
+        # plt.plot(X_coef_locn,coefs_est_sp_uni, label='coefs spline constrained unimodal', color='g', marker='p')
+        # plt.plot(x_all,coefs_full_spline_uni, label='coefs spline constrained unimodal', color='g', linestyle='--')
+        # print(np.dot(cs.derivations_mat,spl_coefs_opt_uni ))
+        # print(np.dot(constraints[-2,:],spl_coefs_opt_uni ))
+        plt.legend()
+        plt.grid()
+        plt.ylim([0, 1])
+        plt.show()
+        assert (np.allclose(correct_unimodal_coefs[i_coefs], reg_custom_unimodal.coef_, atol=1e-4))
+
 
 if __name__ == '__main__':
     test_unimodal_solutions()
+    test_unimodal_solutions_cv()
     test_standard_fit_matches_sklearn()
     test_monotone_fit_matches_sklearn()
 
