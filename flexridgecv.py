@@ -1,4 +1,7 @@
-from flexridge import RidgeRegression
+try:
+    from flexridge.flexridge import RidgeRegression # needed for within lambda
+except:
+    from flexridge import RidgeRegression
 from sklearn.preprocessing import normalize, StandardScaler
 from sklearn.linear_model import RidgeCV
 import numpy as np

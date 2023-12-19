@@ -175,7 +175,7 @@ class RidgeRegression():
             if not hasattr(self.monotone_constraints,  '__iter__'):
                 mono_constr = [self.monotone_constraints]*X.shape[1]
             else:
-                mono_constr = self.monotone_constraints
+                mono_constr = list(self.monotone_constraints)
             if self.fit_intercept:
                     mono_constr.append(0)
             for i, mono_constr_ in enumerate(mono_constr):
